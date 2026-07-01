@@ -12,30 +12,34 @@
 
 output "id" {
   description = "The hosted configuration version ID."
-  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.id
+  value       = module.hosted_configuration_version.id
 }
-
 output "arn" {
   description = "The ARN of the hosted configuration version."
-  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.arn
+  value       = module.hosted_configuration_version.arn
 }
-
 output "application_id" {
-  description = "The AppConfig application ID."
-  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.application_id
+  description = "The application ID."
+  value       = module.hosted_configuration_version.application_id
 }
-
 output "configuration_profile_id" {
-  description = "The AppConfig configuration profile ID."
-  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.configuration_profile_id
+  description = "The configuration profile ID."
+  value       = module.hosted_configuration_version.configuration_profile_id
 }
-
 output "content_type" {
   description = "The content type."
-  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.content_type
+  value       = module.hosted_configuration_version.content_type
 }
-
 output "version_number" {
   description = "The hosted configuration version number."
-  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.version_number
+  value       = module.hosted_configuration_version.version_number
+}
+output "expected_content_type" {
+  description = "Expected content type."
+  value       = var.content_type
+}
+
+output "region" {
+  description = "The AWS Region where the example resources are deployed."
+  value       = data.aws_region.current.region
 }
