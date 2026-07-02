@@ -54,6 +54,7 @@ No modules.
 | <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the hosted configuration version. |
 | <a name="output_configuration_profile_id"></a> [configuration\_profile\_id](#output\_configuration\_profile\_id) | The AppConfig configuration profile ID. |
 | <a name="output_content_type"></a> [content\_type](#output\_content\_type) | The content type. |
+| <a name="output_description"></a> [description](#output\_description) | The hosted configuration version description. |
 | <a name="output_id"></a> [id](#output\_id) | The hosted configuration version ID. |
 | <a name="output_version_number"></a> [version\_number](#output\_version\_number) | The hosted configuration version number. |
 <!-- END_TF_DOCS -->

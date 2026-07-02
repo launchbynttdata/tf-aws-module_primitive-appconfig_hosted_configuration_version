@@ -12,6 +12,45 @@
 
 data "aws_region" "current" {}
 
+data "aws_caller_identity" "current" {}
+
+data "aws_iam_policy_document" "appconfig_kms" {
+  statement {
+    sid     = "EnableAccountAdministration"
+    effect  = "Allow"
+    actions = ["kms:*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowAppConfigUse"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey",
+      "kms:Encrypt",
+      "kms:GenerateDataKey*",
+    ]
+    principals {
+      type        = "Service"
+      identifiers = ["appconfig.amazonaws.com"]
+    }
+    resources = ["*"]
+  }
+}
+
+resource "aws_kms_key" "appconfig" {
+  description         = "KMS key for AppConfig hosted configuration data"
+  enable_key_rotation = true
+  policy              = data.aws_iam_policy_document.appconfig_kms.json
+  tags                = merge(var.tags, { Name = module.resource_names["kms_key"].standard })
+}
+
+
 
 module "resource_names" {
   source  = "terraform.registry.launch.nttdata.com/module_library/resource_name/launch"
@@ -36,11 +75,12 @@ resource "aws_appconfig_application" "example" {
 }
 
 resource "aws_appconfig_configuration_profile" "example" {
-  application_id = aws_appconfig_application.example.id
-  name           = module.resource_names["configuration_profile"].standard
-  location_uri   = "hosted"
-  type           = "AWS.AppConfig.FeatureFlags"
-  tags           = var.tags
+  application_id     = aws_appconfig_application.example.id
+  name               = module.resource_names["configuration_profile"].standard
+  location_uri       = "hosted"
+  type               = "AWS.AppConfig.FeatureFlags"
+  kms_key_identifier = aws_kms_key.appconfig.arn
+  tags               = var.tags
 }
 
 module "hosted_configuration_version" {

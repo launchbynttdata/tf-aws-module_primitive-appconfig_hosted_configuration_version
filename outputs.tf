@@ -39,3 +39,8 @@ output "version_number" {
   description = "The hosted configuration version number."
   value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.version_number
 }
+
+output "description" {
+  description = "The hosted configuration version description."
+  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.description
+}

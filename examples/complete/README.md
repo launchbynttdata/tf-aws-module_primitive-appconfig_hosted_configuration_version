@@ -21,6 +21,44 @@ data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
 
+data "aws_iam_policy_document" "appconfig_kms" {
+  statement {
+    sid     = "EnableAccountAdministration"
+    effect  = "Allow"
+    actions = ["kms:*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowAppConfigUse"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey",
+      "kms:Encrypt",
+      "kms:GenerateDataKey*",
+    ]
+    principals {
+      type        = "Service"
+      identifiers = ["appconfig.amazonaws.com"]
+    }
+    resources = ["*"]
+  }
+}
+
+resource "aws_kms_key" "appconfig" {
+  description         = "KMS key for AppConfig hosted configuration data"
+  enable_key_rotation = true
+  policy              = data.aws_iam_policy_document.appconfig_kms.json
+  tags                = merge(var.tags, { Name = module.resource_names["kms_key"].standard })
+}
+
+
+
 module "resource_names" {
   source  = "terraform.registry.launch.nttdata.com/module_library/resource_name/launch"
   version = "~> 2.0"
@@ -47,7 +85,8 @@ resource "aws_appconfig_configuration_profile" "example" {
   application_id = aws_appconfig_application.example.id
   name           = module.resource_names["configuration_profile"].standard
   location_uri   = "hosted"
-  type           = "AWS.AppConfig.FeatureFlags"
+  type               = "AWS.AppConfig.FeatureFlags"
+  kms_key_identifier = aws_kms_key.appconfig.arn
   tags           = var.tags
 }
 
@@ -83,6 +122,9 @@ module "hosted_configuration_version" {
 |------|------|
 | [aws_appconfig_application.example](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appconfig_application) | resource |
 | [aws_appconfig_configuration_profile.example](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appconfig_configuration_profile) | resource |
+| [aws_kms_key.appconfig](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_iam_policy_document.appconfig_kms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
@@ -108,7 +150,10 @@ module "hosted_configuration_version" {
 | <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the hosted configuration version. |
 | <a name="output_configuration_profile_id"></a> [configuration\_profile\_id](#output\_configuration\_profile\_id) | The configuration profile ID. |
 | <a name="output_content_type"></a> [content\_type](#output\_content\_type) | The content type. |
+| <a name="output_expected_content"></a> [expected\_content](#output\_expected\_content) | Expected hosted configuration content. |
 | <a name="output_expected_content_type"></a> [expected\_content\_type](#output\_expected\_content\_type) | Expected content type. |
+| <a name="output_expected_kms_key_arn"></a> [expected\_kms\_key\_arn](#output\_expected\_kms\_key\_arn) | Expected KMS key ARN. |
+| <a name="output_expected_kms_key_identifier"></a> [expected\_kms\_key\_identifier](#output\_expected\_kms\_key\_identifier) | Expected KMS key identifier. |
 | <a name="output_id"></a> [id](#output\_id) | The hosted configuration version ID. |
 | <a name="output_region"></a> [region](#output\_region) | The AWS Region where the example resources are deployed. |
 | <a name="output_version_number"></a> [version\_number](#output\_version\_number) | The hosted configuration version number. |
