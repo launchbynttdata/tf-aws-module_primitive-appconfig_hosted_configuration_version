@@ -2,6 +2,7 @@ package testimpl
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 	"testing"
 
@@ -51,9 +52,46 @@ func verifyHostedConfigurationVersion(t *testing.T, ctx types.TestContext) (*app
 	assert.Equal(t, contentType, aws.ToString(version.ContentType))
 	assert.Equal(t, versionNumber, version.VersionNumber)
 	assert.Equal(t, expectedKMSKeyARN, aws.ToString(version.KmsKeyArn))
-	assert.JSONEq(t, expectedContent, string(version.Content))
+	assertFeatureFlagsContentEqual(t, expectedContent, string(version.Content))
 
 	return client, applicationID, configurationProfileID
+}
+
+// assertFeatureFlagsContentEqual compares FeatureFlags documents while ignoring
+// AppConfig-injected _createdAt and _updatedAt metadata on flag and value objects.
+func assertFeatureFlagsContentEqual(t *testing.T, expectedJSON, actualJSON string) {
+	t.Helper()
+
+	var expected, actual map[string]interface{}
+	require.NoError(t, json.Unmarshal([]byte(expectedJSON), &expected))
+	require.NoError(t, json.Unmarshal([]byte(actualJSON), &actual))
+
+	normalizeFeatureFlagsContent(expected)
+	normalizeFeatureFlagsContent(actual)
+
+	assert.Equal(t, expected, actual)
+}
+
+func normalizeFeatureFlagsContent(doc map[string]interface{}) {
+	stripAppConfigMetadata(doc, "flags")
+	stripAppConfigMetadata(doc, "values")
+}
+
+func stripAppConfigMetadata(doc map[string]interface{}, section string) {
+	items, ok := doc[section].(map[string]interface{})
+	if !ok {
+		return
+	}
+
+	for _, item := range items {
+		entry, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		delete(entry, "_createdAt")
+		delete(entry, "_updatedAt")
+	}
 }
 
 func exerciseHostedConfigurationVersionWrite(t *testing.T, client *appconfig.Client, applicationID string, profileID string) {
