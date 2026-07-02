@@ -132,7 +132,7 @@ module "hosted_configuration_version" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_class_env"></a> [class\_env](#input\_class\_env) | Environment class for generated resource names. | `string` | n/a | yes |
-| <a name="input_content"></a> [content](#input\_content) | Hosted feature flag document. | `string` | `"{\"flags\":{\"example\":{\"name\":\"example\",\"enabled\":true}},\"values\":{\"example\":{\"enabled\":true}}}\n"` | no |
+| <a name="input_content"></a> [content](#input\_content) | Hosted feature flag document. | `string` | `"{\n  \"version\": \"1\",\n  \"flags\": {\n    \"example\": {\n      \"name\": \"example\"\n    }\n  },\n  \"values\": {\n    \"example\": {\n      \"enabled\": true\n    }\n  }\n}\n"` | no |
 | <a name="input_content_type"></a> [content\_type](#input\_content\_type) | Hosted configuration content type. | `string` | `"application/json"` | no |
 | <a name="input_description"></a> [description](#input\_description) | Hosted configuration version description. | `string` | `"Example feature flag configuration version."` | no |
 | <a name="input_instance_env"></a> [instance\_env](#input\_instance\_env) | Environment instance number for generated resource names. | `number` | n/a | yes |

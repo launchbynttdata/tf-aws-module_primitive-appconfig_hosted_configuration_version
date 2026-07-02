@@ -62,7 +62,7 @@ func exerciseHostedConfigurationVersionWrite(t *testing.T, client *appconfig.Cli
 	created, err := client.CreateHostedConfigurationVersion(context.Background(), &appconfig.CreateHostedConfigurationVersionInput{
 		ApplicationId:          aws.String(applicationID),
 		ConfigurationProfileId: aws.String(profileID),
-		Content:                []byte(`{"flags":{"functional":{"name":"functional","enabled":true}},"values":{"functional":{"enabled":true}}}`),
+		Content:                []byte(`{"version":"1","flags":{"functional":{"name":"functional"}},"values":{"functional":{"enabled":true}}}`),
 		ContentType:            aws.String("application/json"),
 		Description:            aws.String("Functional test hosted configuration version."),
 	})
