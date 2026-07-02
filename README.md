@@ -7,6 +7,8 @@
 
 This primitive module manages one AWS AppConfig hosted configuration version resource and exposes the commonly used Terraform provider arguments for composition by collection and reference architecture modules.
 
+For `AWS.AppConfig.FeatureFlags` configuration profiles, AppConfig injects `_createdAt` and `_updatedAt` metadata into the stored JSON. The AWS provider compares that API response with `var.content` on refresh, which produces perpetual replace plans even when flag definitions are unchanged ([terraform-provider-aws#20273](https://github.com/hashicorp/terraform-provider-aws/issues/20273)). This module uses `terraform_data` and lifecycle rules so no-op plans stay empty while changes to `var.content` still create a new hosted configuration version. Content modified outside Terraform is not reconciled on apply.
+
 ## Usage
 
 ```hcl
@@ -34,6 +36,7 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_appconfig_hosted_configuration_version.hosted_configuration_version](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appconfig_hosted_configuration_version) | resource |
+| [terraform_data.content](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 
 ## Inputs
 
