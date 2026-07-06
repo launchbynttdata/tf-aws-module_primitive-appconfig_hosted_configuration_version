@@ -10,7 +10,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-output "string" {
-  description = "The random string generated from the configured inputs."
-  value       = random_string.string.result
+output "id" {
+  description = "The hosted configuration version ID."
+  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.id
+}
+
+output "arn" {
+  description = "The ARN of the hosted configuration version."
+  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.arn
+}
+
+output "application_id" {
+  description = "The AppConfig application ID."
+  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.application_id
+}
+
+output "configuration_profile_id" {
+  description = "The AppConfig configuration profile ID."
+  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.configuration_profile_id
+}
+
+output "content_type" {
+  description = "The content type."
+  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.content_type
+}
+
+output "version_number" {
+  description = "The hosted configuration version number."
+  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.version_number
+}
+
+output "description" {
+  description = "The hosted configuration version description."
+  value       = aws_appconfig_hosted_configuration_version.hosted_configuration_version.description
 }

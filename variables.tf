@@ -10,25 +10,67 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-variable "length" {
-  description = "Length of the random string to generate."
-  type        = number
-  default     = 24
+# -----------------------------------------------------------------------------
+# Required
+# -----------------------------------------------------------------------------
+
+variable "application_id" {
+  description = "AppConfig application ID."
+  type        = string
 
   validation {
-    condition     = var.length > 0 && var.length < 100
-    error_message = "Length must be a positive integer less than 100."
+    condition     = can(regex("^[a-z0-9]{4,7}$", var.application_id))
+    error_message = "application_id must match ^[a-z0-9]{4,7}$."
   }
 }
 
-variable "number" {
-  description = "Whether the random string should include numbers. Defaults to true."
-  type        = bool
-  default     = true
+variable "configuration_profile_id" {
+  description = "AppConfig configuration profile ID."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9]{4,7}$", var.configuration_profile_id))
+    error_message = "configuration_profile_id must match ^[a-z0-9]{4,7}$."
+  }
 }
 
-variable "special" {
-  description = "Whether the random string should include special characters. Defaults to false."
-  type        = bool
-  default     = false
+variable "content" {
+  description = "Hosted configuration content. For feature flags this should be a valid AWS.AppConfig.FeatureFlags JSON document."
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(var.content) >= 1
+    error_message = "content must not be empty."
+  }
+}
+variable "content_type" {
+  description = "Content type of the hosted configuration version, such as application/json."
+  type        = string
+
+  validation {
+    condition     = length(var.content_type) >= 1 && length(var.content_type) <= 255
+    error_message = "content_type must be between 1 and 255 characters."
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Optional
+# -----------------------------------------------------------------------------
+
+variable "description" {
+  description = "Description of the AppConfig hosted configuration version. Must be at most 1024 characters."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.description == null ? true : length(var.description) <= 1024
+    error_message = "Description must be at most 1024 characters."
+  }
+}
+
+variable "region" {
+  description = "AWS Region where this resource is managed. Defaults to the provider-configured Region."
+  type        = string
+  default     = null
 }

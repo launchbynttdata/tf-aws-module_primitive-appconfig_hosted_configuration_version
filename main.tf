@@ -10,8 +10,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-resource "random_string" "string" {
-  length  = var.length
-  numeric = var.number
-  special = var.special
+# AppConfig injects _createdAt and _updatedAt into FeatureFlags JSON on create/read.
+# Terraform then sees byte-for-byte drift against var.content on every refresh; because
+# content is ForceNew, plans repeatedly replace this resource and cascade into dependents
+# (for example aws_appconfig_deployment). See hashicorp/terraform-provider-aws#20273.
+#
+# ignore_changes suppresses false-positive metadata drift. replace_triggered_by ties
+# replacement to var.content via terraform_data so intentional updates still create a
+# new version. Out-of-band content changes (console, CLI) are not reconciled.
+resource "terraform_data" "content" {
+  input = var.content
+}
+
+resource "aws_appconfig_hosted_configuration_version" "hosted_configuration_version" {
+  application_id           = var.application_id
+  configuration_profile_id = var.configuration_profile_id
+  content                  = var.content
+  content_type             = var.content_type
+  description              = var.description
+  region                   = var.region
+
+  lifecycle {
+    ignore_changes = [content]
+
+    replace_triggered_by = [
+      terraform_data.content,
+    ]
+  }
 }
