@@ -28,16 +28,16 @@ func TestComposableCompleteReadOnly(t *testing.T, ctx types.TestContext) {
 
 func verifyHostedConfigurationVersion(t *testing.T, ctx types.TestContext) (*appconfig.Client, string, string) {
 	opts := ctx.TerratestTerraformOptions()
-	region := terraform.Output(t, opts, "region")
-	applicationID := terraform.Output(t, opts, "application_id")
-	configurationProfileID := terraform.Output(t, opts, "configuration_profile_id")
-	contentType := terraform.Output(t, opts, "content_type")
+	region := terraform.OutputContext(t, context.Background(), opts, "region")
+	applicationID := terraform.OutputContext(t, context.Background(), opts, "application_id")
+	configurationProfileID := terraform.OutputContext(t, context.Background(), opts, "configuration_profile_id")
+	contentType := terraform.OutputContext(t, context.Background(), opts, "content_type")
 	versionNumber := int32Output(t, ctx, "version_number")
-	expectedKMSKeyARN := terraform.Output(t, opts, "expected_kms_key_arn")
-	expectedContent := terraform.Output(t, opts, "expected_content")
+	expectedKMSKeyARN := terraform.OutputContext(t, context.Background(), opts, "expected_kms_key_arn")
+	expectedContent := terraform.OutputContext(t, context.Background(), opts, "expected_content")
 
 	require.NotEqual(t, int32(0), versionNumber)
-	assert.Equal(t, terraform.Output(t, opts, "expected_content_type"), contentType)
+	assert.Equal(t, terraform.OutputContext(t, context.Background(), opts, "expected_content_type"), contentType)
 
 	client := appConfigClient(t, region)
 	version, err := client.GetHostedConfigurationVersion(context.Background(), &appconfig.GetHostedConfigurationVersionInput{
@@ -126,7 +126,7 @@ func appConfigClient(t *testing.T, region string) *appconfig.Client {
 func int32Output(t *testing.T, ctx types.TestContext, name string) int32 {
 	t.Helper()
 
-	value, err := strconv.ParseInt(terraform.Output(t, ctx.TerratestTerraformOptions(), name), 10, 32)
+	value, err := strconv.ParseInt(terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), name), 10, 32)
 	require.NoError(t, err)
 
 	return int32(value)
